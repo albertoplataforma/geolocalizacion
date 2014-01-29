@@ -1,0 +1,99 @@
+package com.example.pruebageolocalizacion;
+
+import java.util.List;
+
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Bundle;
+import android.app.Activity;
+import android.content.Context;
+import android.widget.Toast;
+
+public class MainActivity extends Activity {
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+
+		super.onCreate(savedInstanceState);
+
+		setContentView(R.layout.activity_main);
+
+
+		LocationManager locManager = (LocationManager)getSystemService(LOCATION_SERVICE);
+		
+		//Obtengo la lista de todos los proveedores con que cuenta el dispositivo.
+		
+		List<String> listaProviders = locManager.getAllProviders();
+
+		for(int i=0;i<listaProviders.size();i++) {
+			Toast.makeText(getApplicationContext(),listaProviders.get(i).toString(),Toast.LENGTH_LONG).show();
+		}
+		
+		//Creo un criterio para saber cual es el proveedor que mas me conviene. 
+		//No estoy seguro de cuales serian los requisitos a setear, pero no necesitamos
+		//que nos diga la altura y la velocidad asi que los dejo en false y
+		//pido que tenga la mejor precision
+				
+		//Criteria req = new Criteria();
+		//req.setAccuracy(Criteria.ACCURACY_FINE);
+		//req.setAltitudeRequired(false);
+		//req.setSpeedRequired(false);
+		
+		//Obtengo el mejor proveedor segun ese criterio.
+		//El segundo parametro indica si quiero solo los proveedores que esten activados.
+		//String mejorProviderCrit = locManager.getBestProvider(req,true);
+		
+		//Toast.makeText(getApplicationContext(), "Mejor proveedor: " + mejorProviderCrit ,Toast.LENGTH_LONG).show();
+		
+		
+		if (!locManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+			Toast.makeText(getApplicationContext(), "GPS DESACTIVADO",Toast.LENGTH_LONG).show();
+		}
+		else {
+			//Obtengo la ultima ubicacion conocida.
+			//OJO que puede ser vieja.
+			
+			Location ultimaLocalizacion = locManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+			if(ultimaLocalizacion!=null) {
+					double ultimaLatitud = ultimaLocalizacion.getLatitude();
+					double ultimaLongitud = ultimaLocalizacion.getLongitude();			
+					Toast.makeText(getApplicationContext(), "Ultma latitud: " + ultimaLatitud ,Toast.LENGTH_LONG).show();
+					Toast.makeText(getApplicationContext(), "Ultma longitud: " + ultimaLongitud ,Toast.LENGTH_LONG).show();				
+			}
+			else {
+				Toast.makeText(getApplicationContext(), "Ultma localizacion es null",Toast.LENGTH_LONG).show();
+				
+				//Si no hay una ultima posicion registrada, Nos registramos para recibir actualizaciones de la posición
+				
+				LocationListener locListener = new LocationListener() {
+				    public void onLocationChanged(Location location) {
+						Toast.makeText(getApplicationContext(), "Ultma latitud: " + location.getLatitude() ,Toast.LENGTH_LONG).show();
+						Toast.makeText(getApplicationContext(), "Ultma longitud: " + location.getLongitude() ,Toast.LENGTH_LONG).show();				
+						Toast.makeText(getApplicationContext(), "Precision: " + location.getAccuracy() ,Toast.LENGTH_LONG).show();				
+				    }
+				 
+				    public void onProviderDisabled(String provider){
+				    	Toast.makeText(getApplicationContext(), "GPS DESACTIVADO",Toast.LENGTH_LONG).show();
+				        
+				    }
+				 
+				    public void onProviderEnabled(String provider){
+				    	Toast.makeText(getApplicationContext(), "GPS ACTIVADO",Toast.LENGTH_LONG).show();
+				    }
+				 
+				    public void onStatusChanged(String provider, int status, Bundle extras){
+				    	Toast.makeText(getApplicationContext(), "Status del proveedor" + status,Toast.LENGTH_LONG).show();
+				    }
+				};		
+				
+				//Nos registramos para obtener actualizaciones cada 3000 milisegundos (3 segundos)
+                //El 0 indica que queremos obtener la actualizacion aunque se haya movido 0 metros				
+				Toast.makeText(getApplicationContext(), "A",Toast.LENGTH_LONG).show();
+				locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 0, locListener);
+				Toast.makeText(getApplicationContext(), "B",Toast.LENGTH_LONG).show();
+			}
+		}	
+	}
+}

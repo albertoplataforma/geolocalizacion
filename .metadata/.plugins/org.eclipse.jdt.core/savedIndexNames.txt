@@ -1,0 +1,7 @@
+INDEX VERSION 1.126+/home/alberto/workspacegeolocation/.metadata/.plugins/org.eclipse.jdt.core
+557066205.index
+1415693123.index
+1397605049.index
+3570976849.index
+3468505207.index
+1835055976.index
